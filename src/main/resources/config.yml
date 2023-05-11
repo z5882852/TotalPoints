@@ -22,12 +22,13 @@ groups:
   1:
     # 该奖励组名称
     name: "累充100礼包"
-    # 触发条件
+    # 触发条件 : >= total
     total: 100
+    # 达成条件后要执行的控制台命令，允许使用PlaceholderAPI变量获取玩家名
     commands:
-      - "这里填写达成条件后要执行的控制台命令"
       - "例如eco give %player_name% 200"
-    prompt: "这里填写指令执行完成后的提示"
+    # 填写指令执行完成后的提示, 留空或者删除则不提示
+    prompt: "累充100礼包领取成功"
   2:
     name: "XXX"
     total: 200

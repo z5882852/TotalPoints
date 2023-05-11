@@ -2,7 +2,10 @@ package me.z5882852.totalpoints;
 
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
+import me.z5882852.totalpoints.papi.papiExpansion;
 import me.z5882852.totalpoints.yaml.yamlStorageManager;
+
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
@@ -15,13 +18,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
 
 public class TotalPoints extends JavaPlugin implements Listener {
     private boolean enableMySQL;
     private boolean enablePlugin;
+    private boolean enablePapi;
     private FileConfiguration cfg;
     private String pointName;
+
 
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
@@ -31,11 +37,20 @@ public class TotalPoints extends JavaPlugin implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
+        enablePapi = cfg.getBoolean("enablePapi", false);
         pointName = cfg.getString("name", "点券");
 
         if (!enablePlugin) {
             getLogger().warning("配置文件未启用该插件。");
             this.getServer().getPluginManager().disablePlugin(this);
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            getLogger().warning("找不到前置 PlaceholderAPI!");
+        } else {
+            if (enablePapi) {
+                new papiExpansion(this).register();
+            }
         }
         if (enableMySQL) {
             new MySQLTest(this);
@@ -70,6 +85,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         String playerName = player.getName();
         if (enableMySQL) {
             MySQLManager sqlManager = new MySQLManager(this);
@@ -84,7 +100,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
             }
             storageManager.close();
         }
-        checkPoints(uuid.toString(), player);
+        checkPoints(uuid.toString(), player, offlinePlayer);
     }
 
     @EventHandler
@@ -97,8 +113,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
 
         }
         UUID uuid = event.getPlayerId();
-        String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         Player player = Bukkit.getPlayer(uuid);
+        String playerName = offlinePlayer.getName();
         getLogger().info(String.format("玩家'%s'%s发生变化: %d", playerName, pointName, change));
         if(change > 0) {
             //获得Points
@@ -113,14 +130,14 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 storageManager.setPlayerTotal(uuid.toString(), newTotalPoints);
                 storageManager.close();
             }
-            checkPoints(uuid.toString(), player);
+            checkPoints(uuid.toString(), player, offlinePlayer);
         } else {
             //失去Points
             getLogger().info("失去点券");
         }
     }
 
-    public void checkPoints(String uuid, Player player){
+    public void checkPoints(String uuid, Player player, OfflinePlayer offlinePlayer){
         Set<String> groups = cfg.getConfigurationSection("groups").getKeys(false);
         boolean enableContinuousExecution = cfg.getBoolean("enable_continuous_execution");
         if (!cfg.getBoolean("enable_offline_execution") && player == null) {
@@ -154,12 +171,13 @@ public class TotalPoints extends JavaPlugin implements Listener {
             executionGroupId = new ArrayList<>(Collections.max(executionGroupId));
         }
         for (int groupId : executionGroupId) {
-            String prompt = cfg.getString("groups." + groupId + ".prompt");
+            String prompt = cfg.getString("groups." + groupId + ".prompt", "");
             List<String> commands = getConfig().getStringList("groups." + groupId + ".commands");
             for (String command : commands) {
+                command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
                 getServer().dispatchCommand(getServer().getConsoleSender(), command);
             }
-            if (player != null) {
+            if (player != null && prompt != "") {
                 player.sendMessage(prompt);
             }
         }
