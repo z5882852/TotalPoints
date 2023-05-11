@@ -13,8 +13,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
 
@@ -33,10 +32,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
         pointName = cfg.getString("name", "点券");
-        Set<String> keys = getConfig().getConfigurationSection("groups").getKeys(false);
-        for (String key : keys) {
-            getLogger().info(key);
-        }
+
         if (!enablePlugin) {
             getLogger().warning("配置文件未启用该插件。");
             this.getServer().getPluginManager().disablePlugin(this);
@@ -97,12 +93,15 @@ public class TotalPoints extends JavaPlugin implements Listener {
             return;
         }
         int change = event.getChange();
+        if (cfg.getBoolean("logger.enable")) {
+
+        }
         UUID uuid = event.getPlayerId();
         String playerName = Bukkit.getOfflinePlayer(uuid).getName();
         Player player = Bukkit.getPlayer(uuid);
         getLogger().info(String.format("玩家'%s'%s发生变化: %d", playerName, pointName, change));
         if(change > 0) {
-            //获得点券
+            //获得Points
             if (enableMySQL) {
                 MySQLManager sqlManager = new MySQLManager(this);
                 int newTotalPoints = sqlManager.getPlayerTotal(uuid.toString()) + change;
@@ -116,13 +115,54 @@ public class TotalPoints extends JavaPlugin implements Listener {
             }
             checkPoints(uuid.toString(), player);
         } else {
-            //失去点券
+            //失去Points
+            getLogger().info("失去点券");
         }
     }
 
     public void checkPoints(String uuid, Player player){
-        getLogger().info("...");
-
+        Set<String> groups = cfg.getConfigurationSection("groups").getKeys(false);
+        boolean enableContinuousExecution = cfg.getBoolean("enable_continuous_execution");
+        if (!cfg.getBoolean("enable_offline_execution") && player == null) {
+            return;
+        }
+        int totalPoints = 0;
+        int rewardId = 0;
+        if (enableMySQL) {
+            MySQLManager sqlManager = new MySQLManager(this);
+            totalPoints = sqlManager.getPlayerTotal(uuid);
+            rewardId = sqlManager.getPlayerReward(uuid);
+            sqlManager.closeConn();
+        } else {
+            yamlStorageManager storageManager = new yamlStorageManager(this);
+            totalPoints = storageManager.getPlayerTotal(uuid);
+            rewardId = storageManager.getPlayerReward(uuid);
+            storageManager.close();
+        }
+        List<Integer> executionGroupId = new ArrayList<>();
+        for (String group : groups) {
+            int groupConditionPoints = cfg.getInt("groups." + group + ".total");
+            int groupId = Integer.parseInt(group);
+            if (totalPoints >= groupConditionPoints && rewardId < groupId) {
+                executionGroupId.add(groupId);
+            }
+        }
+        if (executionGroupId.size() == 0) {
+            return;
+        }
+        if (!enableContinuousExecution) {
+            executionGroupId = new ArrayList<>(Collections.max(executionGroupId));
+        }
+        for (int groupId : executionGroupId) {
+            String prompt = cfg.getString("groups." + groupId + ".prompt");
+            List<String> commands = getConfig().getStringList("groups." + groupId + ".commands");
+            for (String command : commands) {
+                getServer().dispatchCommand(getServer().getConsoleSender(), command);
+            }
+            if (player != null) {
+                player.sendMessage(prompt);
+            }
+        }
     }
 
 }
