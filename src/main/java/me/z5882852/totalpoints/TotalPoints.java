@@ -1,5 +1,6 @@
 package me.z5882852.totalpoints;
 
+import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.yaml.yamlStorageManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -67,7 +68,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // 查询玩家points余额
+        // 玩家登录时检测玩家points余额
         if (!enablePlugin) {
             return;
         }
@@ -75,18 +76,19 @@ public class TotalPoints extends JavaPlugin implements Listener {
         UUID uuid = player.getUniqueId();
         String playerName = player.getName();
         if (enableMySQL) {
-
+            MySQLManager sqlManager = new MySQLManager(this);
+            if (sqlManager.getPlayerName(uuid.toString()) == null) {
+                sqlManager.insertPlayerData(uuid.toString(), playerName);
+            }
+            sqlManager.closeConn();
         } else {
             yamlStorageManager storageManager = new yamlStorageManager(this);
             if (storageManager.getPlayerName(uuid.toString()) == null) {
                 storageManager.addPlayerData(uuid.toString(), playerName);
-                storageManager.close();
-            } else {
-                int totalPoints = storageManager.getPlayerTotal(uuid.toString());
-                storageManager.close();
-                CheckPoints(totalPoints, totalPoints, uuid.toString(), player);
             }
+            storageManager.close();
         }
+        checkPoints(uuid.toString(), player);
     }
 
     @EventHandler
@@ -96,18 +98,31 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         int change = event.getChange();
         UUID uuid = event.getPlayerId();
+        String playerName = Bukkit.getOfflinePlayer(uuid).getName();
         Player player = Bukkit.getPlayer(uuid);
-
+        getLogger().info(String.format("玩家'%s'%s发生变化: %d", playerName, pointName, change));
         if(change > 0) {
-
+            //获得点券
+            if (enableMySQL) {
+                MySQLManager sqlManager = new MySQLManager(this);
+                int newTotalPoints = sqlManager.getPlayerTotal(uuid.toString()) + change;
+                sqlManager.setPlayerTotal(uuid.toString(), newTotalPoints);
+                sqlManager.closeConn();
+            } else {
+                yamlStorageManager storageManager = new yamlStorageManager(this);
+                int newTotalPoints = storageManager.getPlayerTotal(uuid.toString()) + change;
+                storageManager.setPlayerTotal(uuid.toString(), newTotalPoints);
+                storageManager.close();
+            }
+            checkPoints(uuid.toString(), player);
         } else {
             //失去点券
         }
     }
 
-    public void CheckPoints(int value,int history_value, String uuid, Player player){
-        getLogger().info("玩家" + uuid + "的累计充值为" + value);
-        player.sendMessage(String.format("累计%s为", pointName) + history_value);
+    public void checkPoints(String uuid, Player player){
+        getLogger().info("...");
+
     }
 
 }
