@@ -5,6 +5,7 @@ import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.papi.papiExpansion;
 import me.z5882852.totalpoints.yaml.YamlStorageManager;
 
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -180,6 +181,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 getServer().dispatchCommand(getServer().getConsoleSender(), command);
             }
             if (player != null && prompt != "") {
+                prompt = ChatColor.translateAlternateColorCodes('&', prompt);
                 player.sendMessage(prompt);
             }
         }
