@@ -4,6 +4,10 @@ name: '点券'
 # 是否启用插件
 enable: true
 
+# 是否启用奖励组
+# 本插件主要功能就是这个，当然你想用其他功能（比如papi或者记录）那就随你(
+enable_reward: true
+
 # 是否启用 PlaceholderAPI 变量
 enable_papi: true
 
@@ -43,9 +47,11 @@ logger:
   enable: false
   # 记录方式，填"mysql" 或者 “local”
   type: local
+  # 是否记录堆栈跟踪信息
+  # 记录堆栈跟踪信息可以更好溯源Points变化来源(比如可以查到刷点券具体是什么插件导致的，前提是你看得懂)，但是会增加日志大小
+  enable_stackTrace: true
   # 记录在mysql的表名称（记录方式为"mysql"时生效）
   logger_table: PointsChange
-
 
 # 数据库配置
 mysql:
