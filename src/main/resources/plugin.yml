@@ -1,0 +1,9 @@
+name: TotalPoints
+version: '${project.version}'
+main: me.z5882852.totalpoints.TotalPoints
+softdepend: [ PlayerPoints ]
+authors: [ z5882852 ]
+description: 基于PlayerPoints的累计Points插件
+commands:
+  totalpoints:
+    aliases: tp
