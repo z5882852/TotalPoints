@@ -5,6 +5,8 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Set;
+
 public class papiExpansion extends PlaceholderExpansion {
     private JavaPlugin plugin;
     private FileConfiguration config;
@@ -36,14 +38,44 @@ public class papiExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, String params) {
-        if(params.equalsIgnoreCase("placeholder1")){
-            return plugin.getConfig().getString("placeholders.placeholder1", "default1");
+        if(params.equalsIgnoreCase("points_total")){
+            papiManager papiManager = new papiManager(plugin, player);
+            int totalPoints = papiManager.getPlayerTotalPoints();
+            papiManager.close();
+            return String.valueOf(totalPoints);
         }
-
-        if(params.equalsIgnoreCase("placeholder2")) {
-            return plugin.getConfig().getString("placeholders.placeholder2", "default2");
+        Set<String> groups = config.getConfigurationSection("groups").getKeys(false);
+        for (String group : groups) {
+            int groupId = Integer.parseInt(group);
+            if(params.equalsIgnoreCase("reward_group_" + group + "_status")) {
+                papiManager papiManager = new papiManager(plugin, player);
+                Boolean status = papiManager.getGroupStatus(groupId);
+                papiManager.close();
+                if (status) {
+                    return config.getString("status_receive");
+                } else {
+                    return config.getString("status_not_receive");
+                }
+            }
+            if(params.equalsIgnoreCase("reward_group_" + group + "_name")) {
+                papiManager papiManager = new papiManager(plugin, player);
+                String name = papiManager.getGroupName(groupId);
+                papiManager.close();
+                return  name;
+            }
+            if(params.equalsIgnoreCase("reward_group_" + group + "_total")) {
+                papiManager papiManager = new papiManager(plugin, player);
+                String total = papiManager.getGroupName(groupId);
+                papiManager.close();
+                return  total;
+            }
+            if(params.equalsIgnoreCase("reward_group_" + group + "_prompt")) {
+                papiManager papiManager = new papiManager(plugin, player);
+                String prompt = papiManager.getGroupPrompt(groupId);
+                papiManager.close();
+                return  prompt;
+            }
         }
-
         return null; // Placeholder is unknown by the Expansion
     }
 }

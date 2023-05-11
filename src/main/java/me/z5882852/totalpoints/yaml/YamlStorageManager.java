@@ -6,9 +6,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 
-public class yamlStorageManager {
+public class YamlStorageManager {
     private File dataFile;
-    public yamlStorageManager(JavaPlugin plugin) {
+    public YamlStorageManager(JavaPlugin plugin) {
         this.dataFile = new File(plugin.getDataFolder(), "data.yml");
     }
 

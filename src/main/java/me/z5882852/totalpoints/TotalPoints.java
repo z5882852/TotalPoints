@@ -3,7 +3,7 @@ package me.z5882852.totalpoints;
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.papi.papiExpansion;
-import me.z5882852.totalpoints.yaml.yamlStorageManager;
+import me.z5882852.totalpoints.yaml.YamlStorageManager;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -31,10 +31,12 @@ public class TotalPoints extends JavaPlugin implements Listener {
 
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
+
         saveDefaultConfig();
         loadDataFile();
-        cfg = this.getConfig();
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
+
+        cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
         enablePapi = cfg.getBoolean("enablePapi", false);
@@ -44,11 +46,10 @@ public class TotalPoints extends JavaPlugin implements Listener {
             getLogger().warning("配置文件未启用该插件。");
             this.getServer().getPluginManager().disablePlugin(this);
         }
-
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            getLogger().warning("找不到前置 PlaceholderAPI!");
-        } else {
-            if (enablePapi) {
+        if (enablePapi) {
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+                getLogger().warning("找不到前置 PlaceholderAPI!");
+            } else {
                 new papiExpansion(this).register();
             }
         }
@@ -94,7 +95,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
             }
             sqlManager.closeConn();
         } else {
-            yamlStorageManager storageManager = new yamlStorageManager(this);
+            YamlStorageManager storageManager = new YamlStorageManager(this);
             if (storageManager.getPlayerName(uuid.toString()) == null) {
                 storageManager.addPlayerData(uuid.toString(), playerName);
             }
@@ -125,7 +126,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 sqlManager.setPlayerTotal(uuid.toString(), newTotalPoints);
                 sqlManager.closeConn();
             } else {
-                yamlStorageManager storageManager = new yamlStorageManager(this);
+                YamlStorageManager storageManager = new YamlStorageManager(this);
                 int newTotalPoints = storageManager.getPlayerTotal(uuid.toString()) + change;
                 storageManager.setPlayerTotal(uuid.toString(), newTotalPoints);
                 storageManager.close();
@@ -151,7 +152,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
             rewardId = sqlManager.getPlayerReward(uuid);
             sqlManager.closeConn();
         } else {
-            yamlStorageManager storageManager = new yamlStorageManager(this);
+            YamlStorageManager storageManager = new YamlStorageManager(this);
             totalPoints = storageManager.getPlayerTotal(uuid);
             rewardId = storageManager.getPlayerReward(uuid);
             storageManager.close();
@@ -175,11 +176,21 @@ public class TotalPoints extends JavaPlugin implements Listener {
             List<String> commands = getConfig().getStringList("groups." + groupId + ".commands");
             for (String command : commands) {
                 command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
+                command = command.replace("{player_name}", offlinePlayer.getName());
                 getServer().dispatchCommand(getServer().getConsoleSender(), command);
             }
             if (player != null && prompt != "") {
                 player.sendMessage(prompt);
             }
+        }
+        if (enableMySQL) {
+            MySQLManager sqlManager = new MySQLManager(this);
+            sqlManager.setPlayerReward(uuid, Collections.max(executionGroupId));
+            sqlManager.closeConn();
+        } else {
+            YamlStorageManager storageManager = new YamlStorageManager(this);
+            storageManager.setPlayerReward(uuid, Collections.max(executionGroupId));
+            storageManager.close();
         }
     }
 
