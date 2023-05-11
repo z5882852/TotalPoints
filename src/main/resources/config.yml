@@ -38,7 +38,7 @@ mysql:
   password: ""
   database: database
   #  保存数据的表，不存在则创建表
-  table: table
+  table: TotalPoints
   # 连接参数
   params: "?useSSL=false"
 

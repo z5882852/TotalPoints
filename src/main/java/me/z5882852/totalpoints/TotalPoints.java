@@ -2,10 +2,7 @@ package me.z5882852.totalpoints;
 
 import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.yaml.yamlStorageManager;
-import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,7 +12,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,18 +19,24 @@ import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
 
 public class TotalPoints extends JavaPlugin implements Listener {
     private boolean enableMySQL;
+    private boolean enablePlugin;
+    private FileConfiguration cfg;
+    private String pointName;
 
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
         saveDefaultConfig();
         loadDataFile();
+        cfg = this.getConfig();
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
-        enableMySQL = getConfig().getBoolean("mysql.enable", false);
+        enablePlugin = cfg.getBoolean("enable", false);
+        enableMySQL = cfg.getBoolean("mysql.enable", false);
+        pointName = cfg.getString("name", "点券");
         Set<String> keys = getConfig().getConfigurationSection("groups").getKeys(false);
         for (String key : keys) {
             getLogger().info(key);
         }
-        if (!getConfig().getBoolean("enable", false)) {
+        if (!enablePlugin) {
             getLogger().warning("配置文件未启用该插件。");
             this.getServer().getPluginManager().disablePlugin(this);
         }
@@ -66,6 +68,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         // 查询玩家points余额
+        if (!enablePlugin) {
+            return;
+        }
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         String playerName = player.getName();
@@ -77,7 +82,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 storageManager.addPlayerData(uuid.toString(), playerName);
                 storageManager.close();
             } else {
-                Double totalPoints = storageManager.getPlayerTotal(uuid.toString());
+                int totalPoints = storageManager.getPlayerTotal(uuid.toString());
                 storageManager.close();
                 CheckPoints(totalPoints, totalPoints, uuid.toString(), player);
             }
@@ -86,6 +91,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerPointsChange(PlayerPointsChangeEvent event){
+        if (!enablePlugin) {
+            return;
+        }
         int change = event.getChange();
         UUID uuid = event.getPlayerId();
         Player player = Bukkit.getPlayer(uuid);
@@ -97,9 +105,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
     }
 
-    public void CheckPoints(Double value,Double history_value, String uuid, Player player){
+    public void CheckPoints(int value,int history_value, String uuid, Player player){
         getLogger().info("玩家" + uuid + "的累计充值为" + value);
-        player.sendMessage("累计充值为" + history_value);
+        player.sendMessage(String.format("累计%s为", pointName) + history_value);
     }
 
 }

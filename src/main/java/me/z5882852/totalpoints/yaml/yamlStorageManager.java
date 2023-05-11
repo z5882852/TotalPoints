@@ -29,9 +29,9 @@ public class yamlStorageManager {
         return config.getString(playerUUID + ".name", null);
     }
 
-    public double getPlayerTotal(String playerUUID) {
+    public int getPlayerTotal(String playerUUID) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
-        return config.getDouble(playerUUID + ".total");
+        return config.getInt(playerUUID + ".total");
     }
 
     public int getPlayerReward(String playerUUID) {
@@ -39,7 +39,7 @@ public class yamlStorageManager {
         return config.getInt(playerUUID + ".reward");
     }
 
-    public void setPlayerTotal(String playerUUID, Double totalPoints) {
+    public void setPlayerTotal(String playerUUID, int totalPoints) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
         config.set(playerUUID + ".total", totalPoints);
         try {
