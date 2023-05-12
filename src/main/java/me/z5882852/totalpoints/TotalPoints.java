@@ -2,6 +2,7 @@ package me.z5882852.totalpoints;
 
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
+import me.z5882852.totalpoints.logger.PointsLoggerManager;
 import me.z5882852.totalpoints.papi.papiExpansion;
 import me.z5882852.totalpoints.yaml.YamlStorageManager;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.black_ixx.playerpoints.event.PlayerPointsResetEvent;
 import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
 
 public class TotalPoints extends JavaPlugin implements Listener {
@@ -111,14 +113,15 @@ public class TotalPoints extends JavaPlugin implements Listener {
             return;
         }
         int change = event.getChange();
-        if (cfg.getBoolean("logger.enable")) {
 
-        }
         UUID uuid = event.getPlayerId();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         Player player = Bukkit.getPlayer(uuid);
-        String playerName = offlinePlayer.getName();
-        getLogger().info(String.format("玩家'%s'%s发生变化: %d", playerName, pointName, change));
+        if (cfg.getBoolean("logger.enable")) {
+            PointsLoggerManager pointsLoggerManager = new PointsLoggerManager(this);
+            pointsLoggerManager.log(offlinePlayer, change);
+            pointsLoggerManager.close();
+        }
         if(change > 0) {
             //获得Points
             if (enableMySQL) {
@@ -133,13 +136,23 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 storageManager.close();
             }
             checkPoints(uuid.toString(), player, offlinePlayer);
-        } else {
-            //失去Points
-            getLogger().info("失去点券");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPointsReset(PlayerPointsResetEvent event){
+        if (cfg.getBoolean("logger.enable")) {
+            UUID uuid = event.getPlayerId();
+            PointsLoggerManager pointsLoggerManager = new PointsLoggerManager(this);
+            pointsLoggerManager.log(Bukkit.getOfflinePlayer(uuid), event.getChange());
+            pointsLoggerManager.close();
         }
     }
 
     public void checkPoints(String uuid, Player player, OfflinePlayer offlinePlayer){
+        if (!cfg.getBoolean("enable_reward")) {
+            return;
+        }
         Set<String> groups = cfg.getConfigurationSection("groups").getKeys(false);
         boolean enableContinuousExecution = cfg.getBoolean("enable_continuous_execution");
         if (!cfg.getBoolean("enable_offline_execution") && player == null) {

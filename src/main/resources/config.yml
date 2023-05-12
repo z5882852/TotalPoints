@@ -42,6 +42,7 @@ groups:
     prompt: "XXX"
 
 # Points变化记录
+# 格式[时间] [玩家UUID] [玩家名字] [变化类型] [变化数值] [StackTraceClassName_1, StackTraceClassName_2, ...]
 logger:
   # 是否启用Points变化记录
   enable: false
@@ -69,7 +70,7 @@ mysql:
 
 
 # PAPI变量设置
-# %reward_group_{组名}_status% 返回的变量
+# %reward_group_{组名}_status% 解析返回的变量
 status_receive: "已领取"
 status_not_receive: "未领取"
 
