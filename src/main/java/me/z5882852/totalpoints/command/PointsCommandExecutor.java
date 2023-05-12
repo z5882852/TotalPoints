@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 public class PointsCommandExecutor implements CommandExecutor {
     private FileConfiguration config;
     private JavaPlugin plugin;
@@ -110,6 +111,13 @@ public class PointsCommandExecutor implements CommandExecutor {
             case "setgroup":
                 if (sender.hasPermission("totalpoints.default.setgroup")) {
                     sender.sendMessage(prefix + setPlayerReward(args[1], Integer.parseInt(args[2])));
+                } else {
+                    sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
+                }
+                return true;
+            case "reload":
+                if (sender.hasPermission("totalpoints.default.reload")) {
+                    plugin.reloadConfig();
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
                 }

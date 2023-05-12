@@ -160,23 +160,6 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0) {return true;}
-        if (sender.hasPermission("totalpoints.default.reload")) {
-            this.reloadConfig();
-            cfg = this.getConfig();
-            enablePlugin = cfg.getBoolean("enable", false);
-            enableMySQL = cfg.getBoolean("mysql.enable", false);
-            enablePapi = cfg.getBoolean("enable_papi", false);
-            pointName = cfg.getString("name", "点券");
-            prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
-            sender.sendMessage(prefix + ChatColor.GREEN + "配置文件已重新载入。");
-        } else {
-            sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
-        }
-        return true;
-    }
 
     public void checkPoints(String uuid, Player player, OfflinePlayer offlinePlayer){
         if (!cfg.getBoolean("enable_reward")) {
