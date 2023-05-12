@@ -2,6 +2,7 @@ package me.z5882852.totalpoints.command;
 
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.yaml.YamlStorageManager;
+import me.z5882852.totalpoints.TotalPoints;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -117,7 +118,13 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "reload":
                 if (sender.hasPermission("totalpoints.default.reload")) {
+                    TotalPoints.thisPlugin.onReload();
                     plugin.reloadConfig();
+                    this.config = plugin.getConfig();
+                    this.enableMySQL = config.getBoolean("mysql.enable", false);
+                    this.prefix = ChatColor.translateAlternateColorCodes('&', config.getString("prefix", "&8[&6TotalPoints&8]"));
+                    this.pointName = config.getString("name", "点券");
+                    sender.sendMessage(prefix + ChatColor.GREEN + "配置文件已重新加载！");
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
                 }

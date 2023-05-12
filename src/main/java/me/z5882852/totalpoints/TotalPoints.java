@@ -9,8 +9,6 @@ import me.z5882852.totalpoints.yaml.YamlStorageManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
@@ -28,6 +26,7 @@ import org.black_ixx.playerpoints.event.PlayerPointsResetEvent;
 import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
 
 public class TotalPoints extends JavaPlugin implements Listener {
+    public static TotalPoints thisPlugin;
     private boolean enableMySQL;
     private boolean enablePlugin;
     private boolean enablePapi;
@@ -42,12 +41,13 @@ public class TotalPoints extends JavaPlugin implements Listener {
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
 
+
         saveDefaultConfig();
         loadDataFile();
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getPluginCommand("totalpoints").setExecutor(new PointsCommandExecutor(this));
 
-
+        thisPlugin = this;
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
@@ -90,6 +90,16 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void onReload(){
+        this.reloadConfig();
+        cfg = this.getConfig();
+        enablePlugin = cfg.getBoolean("enable", false);
+        enableMySQL = cfg.getBoolean("mysql.enable", false);
+        enablePapi = cfg.getBoolean("enable_papi", false);
+        pointName = cfg.getString("name", "点券");
+        prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
     }
 
     @EventHandler
