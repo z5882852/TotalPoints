@@ -1,5 +1,6 @@
 package me.z5882852.totalpoints;
 
+import me.z5882852.totalpoints.command.PointsCommandExecutor;
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.logger.PointsLoggerManager;
@@ -37,6 +38,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         saveDefaultConfig();
         loadDataFile();
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginCommand("totalpoints").setExecutor(new PointsCommandExecutor());
 
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);

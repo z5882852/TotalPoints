@@ -25,6 +25,7 @@ public class PointsLoggerManager{
     private boolean enableMySQL;
     private boolean enableLoggerMySQL;
     private boolean enableStackTrace;
+    private boolean simpleStackTrace;
     private Logger logger;
     private FileHandler fileHandler;
     private Connection conn;
@@ -45,6 +46,7 @@ public class PointsLoggerManager{
             enableLoggerMySQL = false;
         }
         this.enableStackTrace = config.getBoolean("logger.enable_stackTrace", false);
+        this.simpleStackTrace= config.getBoolean("logger.simple_stackTrace", true);
         if (enableLoggerMySQL) {
             try {
                 String username = config.getString("mysql.user");
@@ -132,11 +134,18 @@ public class PointsLoggerManager{
 
     public List<String> getStackTraceElementClassName() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        List<String> className = new ArrayList<>();
+        List<String> classNameList = new ArrayList<>();
         for (StackTraceElement element : stackTrace) {
-            className.add(element.getClassName());
+            String className = element.getClassName();
+            if (simpleStackTrace) {
+                if (!className.startsWith("me.z5882852") && !className.startsWith("catserver.server") && !className.startsWith("net.minecraft") && !className.startsWith("java.lang") && !className.startsWith("com.paper")) {
+                    classNameList.add(className);
+                }
+            } else {
+                classNameList.add(className);
+            }
         }
-        return className;
+        return classNameList;
     }
 
     public String getCurrentTimeString() {
