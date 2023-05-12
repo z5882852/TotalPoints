@@ -99,6 +99,24 @@ public class MySQLManager {
         }
     }
 
+    public String getPlayerUUID(String playerName) {
+        String playerUUID = null;
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(String.format("SELECT `uuid` FROM `%s` WHERE `name` = '%s'", table, playerUUID));
+            if (rs.next()) {
+                playerUUID = rs.getString("uuid");
+            }
+            rs.close();
+            statement.close();
+            return playerUUID;
+        } catch (SQLException e) {
+            plugin.getLogger().severe("无法获取玩家UUID,请查看以下报错信息:");
+            e.printStackTrace();
+            return playerUUID;
+        }
+    }
+
     public void setPlayerTotal(String playerUUID, int totalPoints) {
         try {
             Statement stmt = conn.createStatement();

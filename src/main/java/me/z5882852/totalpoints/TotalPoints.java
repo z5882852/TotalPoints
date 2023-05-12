@@ -4,11 +4,13 @@ import me.z5882852.totalpoints.command.PointsCommandExecutor;
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.database.MySQLTest;
 import me.z5882852.totalpoints.logger.PointsLoggerManager;
-import me.z5882852.totalpoints.papi.papiExpansion;
+import me.z5882852.totalpoints.papi.PapiExpansion;
 import me.z5882852.totalpoints.yaml.YamlStorageManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
@@ -31,6 +33,11 @@ public class TotalPoints extends JavaPlugin implements Listener {
     private boolean enablePapi;
     private FileConfiguration cfg;
     private String pointName;
+    private String prefix;
+
+    public TotalPoints() {
+
+    }
 
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
@@ -38,13 +45,15 @@ public class TotalPoints extends JavaPlugin implements Listener {
         saveDefaultConfig();
         loadDataFile();
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginCommand("totalpoints").setExecutor(new PointsCommandExecutor());
+        Bukkit.getPluginCommand("totalpoints").setExecutor(new PointsCommandExecutor(this));
+
 
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
         enablePapi = cfg.getBoolean("enable_papi", false);
         pointName = cfg.getString("name", "点券");
+        prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
 
         if (!enablePlugin) {
             getLogger().warning("配置文件未启用该插件。");
@@ -55,7 +64,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
                 getLogger().warning("找不到前置 PlaceholderAPI!");
             } else {
                 this.getLogger().info("PlaceholderAPI变量注册中");
-                new papiExpansion(this).register();
+                (new PapiExpansion(this)).register();
             }
         }
         if (enableMySQL) {
@@ -151,6 +160,24 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
     }
 
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 0) {return true;}
+        if (sender.hasPermission("totalpoints.default.reload")) {
+            this.reloadConfig();
+            cfg = this.getConfig();
+            enablePlugin = cfg.getBoolean("enable", false);
+            enableMySQL = cfg.getBoolean("mysql.enable", false);
+            enablePapi = cfg.getBoolean("enable_papi", false);
+            pointName = cfg.getString("name", "点券");
+            prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
+            sender.sendMessage(prefix + ChatColor.GREEN + "配置文件已重新载入。");
+        } else {
+            sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
+        }
+        return true;
+    }
+
     public void checkPoints(String uuid, Player player, OfflinePlayer offlinePlayer){
         if (!cfg.getBoolean("enable_reward")) {
             return;
@@ -197,7 +224,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
             }
             if (player != null && prompt != "") {
                 prompt = ChatColor.translateAlternateColorCodes('&', prompt);
-                player.sendMessage(prompt);
+                player.sendMessage(prefix + prompt);
             }
         }
         if (enableMySQL) {

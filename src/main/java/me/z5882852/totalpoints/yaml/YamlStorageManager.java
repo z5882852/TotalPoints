@@ -1,10 +1,12 @@
 package me.z5882852.totalpoints.yaml;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 
 public class YamlStorageManager {
     private File dataFile;
@@ -37,6 +39,21 @@ public class YamlStorageManager {
     public int getPlayerReward(String playerUUID) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
         return config.getInt(playerUUID + ".reward");
+    }
+
+    public String getPlayerUUID(String playerName) {
+        File file = new File(dataFile, "data.yml");
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+        Set<String> uuids = config.getKeys(false);
+
+        for (String uuid : uuids) {
+            String name = config.getString(uuid + ".name");
+            if (name == playerName) {
+                return uuid;
+            }
+        }
+        return null;
     }
 
     public void setPlayerTotal(String playerUUID, int totalPoints) {

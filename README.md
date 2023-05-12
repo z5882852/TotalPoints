@@ -100,19 +100,21 @@ status_not_receive: "未领取"
 该插件提供以下命令：
 
 * `/tpw`: 查看自己的累计点数。
-* `/tpw <玩家名>`: 查看指定玩家的累计点数。
+* `/tpw look <玩家名>`: 查看指定玩家的累计点数。
 * `/tpw add <玩家名> <点数>`: 增加指定玩家的累计点数。
-* `/tpw remove <玩家名> <点数>`: 减少指定玩家的点数。
-* `/tpw set <玩家名> <点数>`: 设定指定玩家的点数。
+* `/tpw remove <玩家名> <点数>`: 减少指定玩家的累计点数。
+* `/tpw set <玩家名> <点数>`: 设定指定玩家的累计点数。
+* `/tpw lookgroup <玩家名>`: 查看指定玩家已领取的奖励组。
+* `/tpw setgroup <玩家名> <组名>`: 设定指定玩家已领取的奖励组。
 * `/tpw reload`: 重载配置文件。
 
 除此之外，`TotalPoints`插件还提供以下`PlaceholderAPI`变量：
 
-* `%points_total%`: 玩家的累积点数。
-* `%reward_group_{组名}_status%`: 玩家的奖励组领取状态
-* `%reward_group_{组名}_name%`: 该奖励组的名称
-* `%reward_group_{组名}_total%`: 该奖励组的的领取条件
-* `%reward_group_{组名}_prompt%`: 该奖励组的领取后的提示。
+* `%TotalPoints_points_total%`: 玩家的累积点数。
+* `%TotalPoints_group_{组名}_status%`: 玩家的奖励组领取状态
+* `%TotalPoints_group_{组名}_name%`: 该奖励组的名称
+* `%TotalPoints_group_{组名}_total%`: 该奖励组的的领取条件
+* `%TotalPoints_group_{组名}_prompt%`: 该奖励组的领取后的提示。
 
 ## 常见问题
 

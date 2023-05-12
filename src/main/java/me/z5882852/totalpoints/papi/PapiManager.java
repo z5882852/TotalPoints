@@ -6,7 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class papiManager {
+public class PapiManager {
     private JavaPlugin plugin;
     private FileConfiguration config;
     private OfflinePlayer offlinePlayer;
@@ -15,7 +15,7 @@ public class papiManager {
     private YamlStorageManager yamlStorageManager = null;
     private String playerUUID;
 
-    public papiManager(JavaPlugin plugin, OfflinePlayer offlinePlayer) {
+    public PapiManager(JavaPlugin plugin, OfflinePlayer offlinePlayer) {
         this.plugin = plugin;
         this.config = plugin.getConfig();
         this.offlinePlayer = offlinePlayer;

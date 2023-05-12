@@ -7,6 +7,23 @@ authors: [ z5882852 ]
 description: 基于PlayerPoints的累计Points插件
 commands:
   totalpoints:
-
     aliases: tpw
+
+permissions:
+  totalpoints.default.*:
+    description: "所有玩家权限"
+    default: true
+    children:
+      totalpoints.default.help: true
+      totalpoints.default.look: true
+      totalpoints.default.lookgroup: true
+  totalpoints.admin.*:
+    description: "所有管理员权限"
+    default: op
+    children:
+      totalpoints.admin.add: op
+      totalpoints.admin.remove: op
+      totalpoints.admin.set: op
+      totalpoints.admin.reload: op
+      totalpoints.admin.setgroup: op
 
