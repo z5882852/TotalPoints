@@ -42,14 +42,12 @@ public class YamlStorageManager {
     }
 
     public String getPlayerUUID(String playerName) {
-        File file = new File(dataFile, "data.yml");
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
 
         Set<String> uuids = config.getKeys(false);
-
         for (String uuid : uuids) {
             String name = config.getString(uuid + ".name");
-            if (name == playerName) {
+            if (name.equals(playerName)) {
                 return uuid;
             }
         }

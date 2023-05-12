@@ -36,7 +36,7 @@ public class PointsCommandExecutor implements CommandExecutor {
                     if (totalPoints == -1) {
                         sender.sendMessage(ChatColor.RED + "没有该玩家的数据！");
                     } else {
-                        sender.sendMessage(prefix + ChatColor.GOLD + "该玩家的累计" + pointName + "为" + ChatColor.GREEN + totalPoints);
+                        sender.sendMessage(prefix + ChatColor.GOLD + "你的累计" + pointName + "为" + ChatColor.GREEN + totalPoints);
                     }
                 } else {
                     sender.sendMessage(prefix + ChatColor.RED + "你不是玩家。");
@@ -48,8 +48,9 @@ public class PointsCommandExecutor implements CommandExecutor {
         }
 
         if (args.length == 3) {
-            if (checkInteger(args[2])) {
+            if (!checkInteger(args[2])) {
                 sender.sendMessage(prefix + ChatColor.RED + "你输入的不是整数。");
+                return true;
             }
         }
 
