@@ -19,13 +19,13 @@ import java.util.logging.Level;
 import java.util.logging.SimpleFormatter;
 
 
-public class PointsLoggerManager extends JavaPlugin{
+public class PointsLoggerManager{
     private JavaPlugin plugin;
     private FileConfiguration config;
     private boolean enableMySQL;
     private boolean enableLoggerMySQL;
     private boolean enableStackTrace;
-    private static final Logger logger = Logger.getLogger(PointsLoggerManager.class.getName());
+    private Logger logger;
     private FileHandler fileHandler;
     private Connection conn;
     private String table;
@@ -34,11 +34,12 @@ public class PointsLoggerManager extends JavaPlugin{
     public PointsLoggerManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfig();
+        this.logger = Logger.getLogger(PointsLoggerManager.class.getName());
         this.enableMySQL = config.getBoolean("mysql.enable", false);
-        if (config.getString("logger.type", "local") == "mysql") {
+        if (config.getString("logger.type", "local").equals("mysql")) {
             enableLoggerMySQL = true;
         }
-        if (enableMySQL == false && enableLoggerMySQL == true) {
+        if (!enableMySQL && enableLoggerMySQL) {
             plugin.getLogger().warning("您在全局中未开启mysql存储，日志存储自动设置为local");
             config.set("logger.type", "local");
             enableLoggerMySQL = false;
@@ -82,7 +83,7 @@ public class PointsLoggerManager extends JavaPlugin{
         }else{
             try {
                 String logFileName = new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".log";
-                File logFile = new File(getDataFolder() + File.separator + "logs" + File.separator + logFileName);
+                File logFile = new File(plugin.getDataFolder() + File.separator + "logs" + File.separator + logFileName);
                 logFile.getParentFile().mkdirs();
                 fileHandler = new FileHandler(logFile.getAbsolutePath(), true);
                 fileHandler.setFormatter(new SimpleFormatter());
@@ -105,10 +106,10 @@ public class PointsLoggerManager extends JavaPlugin{
             type = "重置";
         }
         if (enableStackTrace) {
-            stackTraceElementClassName = String.join(", ", getStackTraceElementClassName());
+            stackTraceElementClassName = String.join(" \n", getStackTraceElementClassName());
         }
         // 格式[时间] [玩家UUID] [玩家名字] [变化类型] [变化数值] [StackTraceClassName_1, StackTraceClassName_2, ...]
-        String message = String.format("[%s][%s][%s][%s][%d][%s]", getCurrentTimeString(), offlinePlayer.getUniqueId().toString(), offlinePlayer.getName(), type, changePoints, stackTraceElementClassName);
+        String message = String.format("[%s][%s][%s][%s][%d]\n[%s]\n", getCurrentTimeString(), offlinePlayer.getUniqueId().toString(), offlinePlayer.getName(), type, changePoints, stackTraceElementClassName);
         if (enableLoggerMySQL) {
             insertLog(offlinePlayer, type, String.valueOf(changePoints), stackTraceElementClassName);
         } else {

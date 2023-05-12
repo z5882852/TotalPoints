@@ -26,11 +26,9 @@ public class MySQLManager {
             pointName = config.getString("name", "点券");
             String url = "jdbc:mysql://" + config.getString("mysql.host") + ":" + config.getString("mysql.port") + "/" + config.getString("mysql.database") + config.getString("mysql.params");
             this.conn = DriverManager.getConnection(url, username, password);
-            plugin.getLogger().info("数据库连接成功!");
         } catch (SQLException e) {
             plugin.getLogger().severe("无法连接数据库: " + e.getMessage());
-            plugin.getLogger().severe("停用插件: TotalPoints");
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            e.printStackTrace();
         }
     }
 

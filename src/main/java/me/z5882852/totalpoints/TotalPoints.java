@@ -31,7 +31,6 @@ public class TotalPoints extends JavaPlugin implements Listener {
     private FileConfiguration cfg;
     private String pointName;
 
-
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
 
@@ -42,7 +41,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
-        enablePapi = cfg.getBoolean("enablePapi", false);
+        enablePapi = cfg.getBoolean("enable_papi", false);
         pointName = cfg.getString("name", "点券");
 
         if (!enablePlugin) {
@@ -53,6 +52,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
                 getLogger().warning("找不到前置 PlaceholderAPI!");
             } else {
+                this.getLogger().info("PlaceholderAPI变量注册中");
                 new papiExpansion(this).register();
             }
         }
