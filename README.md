@@ -17,6 +17,8 @@ TotalPoints是一款基于PlayerPoints插件的我的世界Bukkit插件，用于
 TotalPoints插件有以下配置选项：
 
 ```yaml
+# 配置文件,适用于1.2.4及更早版本。
+
 # Points别名
 name: '点券'
 
@@ -52,7 +54,8 @@ groups:
       commands:
          - "例如eco give {player_name} 200"
       # 指令执行完成后的提示, 留空或者删除则不提示
-      prompt: "累充100礼包领取成功"
+      # 允许使用颜色转义字符，比如'&1'和'&3'等
+      prompt: "&6累充100&4礼包领取成功"
    2:
       name: "XXX"
       total: 200
@@ -60,7 +63,11 @@ groups:
          - "XXX"
       prompt: "XXX"
 
+# 插件信息输出前缀
+prefix: "&8[&6TotalPoints&8]"
+
 # Points变化记录
+# 格式[时间] [玩家UUID] [玩家名字] [变化类型] [变化数值] \n[StackTraceClassName_1, \nStackTraceClassName_2, \n...]
 logger:
    # 是否启用Points变化记录
    enable: false
@@ -69,6 +76,8 @@ logger:
    # 是否记录堆栈跟踪信息
    # 记录堆栈跟踪信息可以更好溯源Points变化来源(比如可以查到刷点券具体是什么插件导致的，前提是你看得懂)，但是会增加日志大小
    enable_stackTrace: true
+   # 简化堆栈跟踪，如果关闭则输出所有StackTraceClassName
+   simple_stackTrace: true
    # 记录在mysql的表名称（记录方式为"mysql"时生效）
    logger_table: PointsChange
 
