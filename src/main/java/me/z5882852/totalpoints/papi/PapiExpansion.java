@@ -41,7 +41,6 @@ public class PapiExpansion extends PlaceholderExpansion {
         if(params.equalsIgnoreCase("points_total")){
             PapiManager papiManager = new PapiManager(plugin, player);
             int totalPoints = papiManager.getPlayerTotalPoints();
-            System.out.println("print:" + totalPoints);
             papiManager.close();
             return String.valueOf(totalPoints);
         }

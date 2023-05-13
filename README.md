@@ -142,4 +142,4 @@ status_not_receive: "未领取"
 * z5882852@qq.com
 * silence5882852@gmail.com
 
-## 更新日志
+## [更新日志](https://github.com/z5882852/TotalPoints/blob/main/CHANGELOG.md) 
