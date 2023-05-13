@@ -1,4 +1,5 @@
 # TotalPoints
+![Author](https://img.shields.io/badge/Author-z5882852-blue) ![Version](https://img.shields.io/github/v/release/z5882852/TotalPoints?label=Version) ![](https://img.shields.io/badge/Bukkit/Spigot-1.12.2-blue.svg)
 
 TotalPoints是一款基于PlayerPoints插件的我的世界Bukkit插件，用于记录玩家的累积点数，自定义以及自动发放奖励，提供papi变量和记录点数变化功能。
 
