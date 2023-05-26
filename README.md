@@ -18,9 +18,10 @@ TotalPoints是一款基于PlayerPoints插件的我的世界Bukkit插件，用于
 TotalPoints插件有以下配置选项：
 
 ```yaml
-# 配置文件,适用于1.2.4及更早版本。
+# 配置文件版本号，请勿修改
+version: 1.25
 
-# Points别名
+# Points别名,为了方便以下均称为“点券”
 name: '点券'
 
 # 是否启用插件
@@ -42,7 +43,7 @@ enable_continuous_execution: true
 # 当你的命令必须要求玩家在线时，建议禁用
 enable_offline_execution: false
 
-# 累计Points奖励组
+# 累计点券奖励组
 groups:
    # 奖励组名称,请按顺序使用正整数来命名，例如 1-10等
    1:
@@ -70,12 +71,12 @@ prefix: "&8[&6TotalPoints&8]"
 # Points变化记录
 # 格式[时间] [玩家UUID] [玩家名字] [变化类型] [变化数值] \n[StackTraceClassName_1, \nStackTraceClassName_2, \n...]
 logger:
-   # 是否启用Points变化记录
+   # 是否启用点券变化记录
    enable: false
    # 记录方式，填"mysql" 或者 “local”
    type: local
    # 是否记录堆栈跟踪信息
-   # 记录堆栈跟踪信息可以更好溯源Points变化来源(比如可以查到刷点券具体是什么插件导致的，前提是你看得懂)，但是会增加日志大小
+   # 记录堆栈跟踪信息可以更好溯源点券变化来源(比如可以查到刷点券具体是什么插件导致的，前提是你看得懂)，但是会增加日志大小
    enable_stackTrace: true
    # 简化堆栈跟踪，如果关闭则输出所有StackTraceClassName
    simple_stackTrace: true
@@ -101,6 +102,13 @@ mysql:
 # %reward_group_{组名}_status% 解析返回的变量
 status_receive: "已领取"
 status_not_receive: "未领取"
+
+# %points_rankings% papi输出的最大排行数
+rankings_number: 10
+# papi输出的排名格式,{ranking}排名 {player_name}为玩家名, {player_total}为累计获得点券数量
+rankings_format: "{ranking}.玩家 {player_name} 累计充值 {player_total} 点券"
+# 默认排名显示(当累计点券为0时)
+default_ranking: "null"
 ```
 
 要更改配置选项，请编辑config.yml文件。
