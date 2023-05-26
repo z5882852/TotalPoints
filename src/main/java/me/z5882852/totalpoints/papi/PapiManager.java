@@ -6,6 +6,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PapiManager {
     private JavaPlugin plugin;
     private FileConfiguration config;
@@ -62,6 +65,39 @@ public class PapiManager {
 
     public String getGroupPrompt(int GroupId) {
         return config.getString("groups." + GroupId + ".prompt");
+    }
+
+    public List<String> getRankings() {
+        if (enableMySQL) {
+            return mySQLManager.getRanking();
+        } else {
+            return yamlStorageManager.getRanking();
+        }
+    }
+
+    public String getRanking(int rankingNum) {
+        List<String> rankings = getRankings();
+        if (rankings.size() < rankingNum) {
+            return "null";
+        }
+        return rankings.get(rankingNum - 1);
+    }
+
+    public String getRankingString() {
+        List<String> rankings = getRankings();
+        if (rankings.size() == 0) {
+            return null;
+        }
+        String rankingString = "";
+        Integer rankingsNum = this.config.getInt("rankings_number", 10);
+        for (String ranking : rankings) {
+            if (rankingsNum == 0) {
+                break;
+            }
+            rankingString = rankingString + ranking + "\n";
+            rankingsNum--;
+        }
+        return rankingString;
     }
 
     public void close() {

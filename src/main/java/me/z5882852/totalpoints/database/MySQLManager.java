@@ -7,6 +7,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MySQLManager {
     private JavaPlugin plugin;
@@ -137,6 +139,28 @@ public class MySQLManager {
         } catch (SQLException e) {
             plugin.getLogger().severe(String.format("无法更新玩家累计%s,请查看以下报错信息:", pointName));
         }
+    }
+
+    public List<String> getRanking() {
+        List<String> rankings = new ArrayList<>();
+        try {
+            String sql = String.format("SELECT name,total FROM `%s` ORDER BY total DESC LIMIT 20", table);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            int r = 1;
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String total = String.valueOf(rs.getInt("total"));
+                String ranking = this.plugin.getConfig().getString("rankings_format", "玩家 {player_name} 累计充值 {player_total} 点券").replace("{ranking}", String.valueOf(r)).replace("{player_name}", name).replace("{player_total}", total);
+                rankings.add(ranking);
+                r++;
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rankings;
     }
 
     public void closeConn() {

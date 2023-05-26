@@ -24,6 +24,7 @@ import java.util.*;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.black_ixx.playerpoints.event.PlayerPointsResetEvent;
 import org.black_ixx.playerpoints.event.PlayerPointsChangeEvent;
+import sun.security.mscapi.PRNG;
 
 public class TotalPoints extends JavaPlugin implements Listener {
     public static TotalPoints thisPlugin;
@@ -40,7 +41,6 @@ public class TotalPoints extends JavaPlugin implements Listener {
 
     public void onEnable() {
         getLogger().info("插件正在初始化中...");
-
 
         saveDefaultConfig();
         loadDataFile();
@@ -70,6 +70,12 @@ public class TotalPoints extends JavaPlugin implements Listener {
         if (enableMySQL) {
             new MySQLTest(this);
         }
+        String[] version = getDescription().getVersion().split("\\.");
+        System.out.println(getDescription().getVersion());
+        if (cfg.getDouble("version", 1.24) < Double.parseDouble(version[0] + "." + version[1] + version[2])) {
+            getLogger().info("配置文件版本过低，请使用最新版本。");
+        }
+
         getLogger().info("插件加载完成。");
     }
 

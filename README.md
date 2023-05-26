@@ -121,9 +121,11 @@ status_not_receive: "未领取"
 除此之外，`TotalPoints`插件还提供以下`PlaceholderAPI`变量：
 
 * `%TotalPoints_points_total%`: 玩家的累积点数。
-* `%TotalPoints_group_{组名}_status%`: 玩家的奖励组领取状态
-* `%TotalPoints_group_{组名}_name%`: 该奖励组的名称
-* `%TotalPoints_group_{组名}_total%`: 该奖励组的的领取条件
+* `%TotalPoints_points_rankings%`: 玩家的累积点数排行榜。
+* `%TotalPoints_points_ranking_{排名}%`: 指定排名的玩家信息。
+* `%TotalPoints_group_{组名}_status%`: 玩家的奖励组领取状态。
+* `%TotalPoints_group_{组名}_name%`: 该奖励组的名称。
+* `%TotalPoints_group_{组名}_total%`: 该奖励组的的领取条。
 * `%TotalPoints_group_{组名}_prompt%`: 该奖励组的领取后的提示。
 
 ## 常见问题

@@ -117,7 +117,7 @@ public class PointsCommandExecutor implements CommandExecutor {
                 }
                 return true;
             case "reload":
-                if (sender.hasPermission("totalpoints.default.reload")) {
+                if (sender.hasPermission("totalpoints.admin.reload")) {
                     TotalPoints.thisPlugin.onReload();
                     plugin.reloadConfig();
                     this.config = plugin.getConfig();
