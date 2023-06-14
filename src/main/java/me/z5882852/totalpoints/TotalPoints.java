@@ -31,6 +31,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
     private boolean enableMySQL;
     private boolean enablePlugin;
     private boolean enablePapi;
+    private boolean papiOnLoad;
     private FileConfiguration cfg;
     private String pointName;
     private String prefix;
@@ -62,16 +63,17 @@ public class TotalPoints extends JavaPlugin implements Listener {
         if (enablePapi) {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
                 getLogger().warning("找不到前置 PlaceholderAPI!");
+                papiOnLoad = false;
             } else {
                 this.getLogger().info("PlaceholderAPI变量注册中");
                 (new PapiExpansion(this)).register();
+                papiOnLoad = true;
             }
         }
         if (enableMySQL) {
             new MySQLTest(this);
         }
         String[] version = getDescription().getVersion().split("\\.");
-        System.out.println(getDescription().getVersion());
         if (cfg.getDouble("version", 1.24) < Double.parseDouble(version[0] + "." + version[1] + version[2])) {
             getLogger().info("配置文件版本过低，请使用最新版本。");
         }
@@ -151,6 +153,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         if(change > 0) {
             //获得Points
+            checkFixedPoints(change, player);
             if (enableMySQL) {
                 MySQLManager sqlManager = new MySQLManager(this);
                 int newTotalPoints = sqlManager.getPlayerTotal(uuid.toString()) + change;
@@ -175,7 +178,6 @@ public class TotalPoints extends JavaPlugin implements Listener {
             pointsLoggerManager.close();
         }
     }
-
 
     public void checkPoints(String uuid, Player player, OfflinePlayer offlinePlayer){
         if (!cfg.getBoolean("enable_reward")) {
@@ -217,7 +219,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
             String prompt = cfg.getString("groups." + groupId + ".prompt", "");
             List<String> commands = getConfig().getStringList("groups." + groupId + ".commands");
             for (String command : commands) {
-                command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
+                if (papiOnLoad) {
+                    command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
+                }
                 command = command.replace("{player_name}", offlinePlayer.getName());
                 getServer().dispatchCommand(getServer().getConsoleSender(), command);
             }
@@ -237,4 +241,42 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
     }
 
+    public void checkFixedPoints(int changePoint, Player player) {
+        List<Integer> fixedPoint = new ArrayList<>();
+        for (String fixedPointStr : cfg.getConfigurationSection("fixed_reward").getKeys(false)) {
+            if (!checkInteger(fixedPointStr)) {
+                getLogger().severe("固定奖励组名错误: " + fixedPointStr);
+                return;
+            }
+            fixedPoint.add(Integer.parseInt(fixedPointStr));
+        }
+
+        if (!fixedPoint.contains(changePoint)) {
+            System.out.println(fixedPoint);
+            return;
+        }
+        String groupName = String.valueOf(changePoint);
+        String prompt = cfg.getString("fixed_reward." + groupName + ".prompt", "");
+        List<String> commands = getConfig().getStringList("fixed_reward." + groupName + ".commands");
+        for (String command : commands) {
+            if (papiOnLoad) {
+                command = PlaceholderAPI.setPlaceholders(player, command);
+            }
+            command = command.replace("{player_name}", player.getName());
+            getServer().dispatchCommand(getServer().getConsoleSender(), command);
+        }
+        if (player != null && !prompt.equals("")) {
+            prompt = ChatColor.translateAlternateColorCodes('&', prompt);
+            player.sendMessage(prefix + prompt);
+        }
+    }
+
+    public boolean checkInteger(String number) {
+        try {
+            int amount = Integer.parseInt(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

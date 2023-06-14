@@ -19,7 +19,7 @@ TotalPoints插件有以下配置选项：
 
 ```yaml
 # 配置文件版本号，请勿修改
-version: 1.25
+version: 1.26
 
 # Points别名,为了方便以下均称为“点券”
 name: '点券'
@@ -64,6 +64,25 @@ groups:
       commands:
          - "XXX"
       prompt: "XXX"
+
+
+# 充值固定数额的奖励
+#格式为
+# <数额>:
+#   commands:
+#     - <命令1>
+#     - <命令2>
+#   prompt: "提示"
+fixed_reward:
+   68:
+      commands:
+         - "eco give {player_name} 68"
+      prompt: "&6 68&4礼包领取成功"
+   648:
+      commands:
+         - "eco give {player_name} 648"
+      prompt: "&6 648&4礼包领取成功"
+
 
 # 插件信息输出前缀
 prefix: "&8[&6TotalPoints&8]"
