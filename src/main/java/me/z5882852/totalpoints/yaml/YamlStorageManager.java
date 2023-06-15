@@ -101,6 +101,32 @@ public class YamlStorageManager {
         return rankings;
     }
 
+    public List<Map<String, String>> getPlayerRanking() {
+        Map<String, Integer> playerData = new HashMap<>();
+        List<Map<String, String>> rankings = new ArrayList<>();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(dataFile);
+        Set<String> uuids = config.getKeys(false);
+        for (String uuid : uuids) {
+            String name = config.getString(uuid + ".name");
+            int total = config.getInt(uuid + ".total", 0);
+            if ((total == 0)) {
+                continue;
+            }
+            playerData.put(name, total);
+        }
+        Map<String, Integer> sortPlayerData = sortMapByValue(playerData);
+        int r = 1;
+        for (Map.Entry<String, Integer> entry : sortPlayerData.entrySet()) {
+            String playerName = entry.getKey();
+            String playerTotal = String.valueOf(entry.getValue());
+            Map<String, String> map = new HashMap<>();
+            map.put(playerName, playerTotal);
+            rankings.add(map);
+            r++;
+        }
+        return rankings;
+    }
+
     public static Map<String, Integer> sortMapByValue(Map<String, Integer> map) {
         List<Map.Entry<String, Integer>> entryList = new ArrayList<>(map.entrySet());
         entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));

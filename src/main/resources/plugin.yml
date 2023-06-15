@@ -18,6 +18,7 @@ permissions:
       totalpoints.default.help: true
       totalpoints.default.look: true
       totalpoints.default.lookgroup: true
+      totalpoints.default.get: true
   totalpoints.admin:
     description: "所有管理员权限"
     default: op
@@ -27,4 +28,4 @@ permissions:
       totalpoints.admin.set: true
       totalpoints.admin.reload: true
       totalpoints.admin.setgroup: true
-
+      totalpoints.admin.give: true

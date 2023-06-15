@@ -31,7 +31,8 @@ public class TotalPoints extends JavaPlugin implements Listener {
     private boolean enableMySQL;
     private boolean enablePlugin;
     private boolean enablePapi;
-    private boolean papiOnLoad;
+    private boolean enableFixed;
+    public boolean papiOnLoad;
     private FileConfiguration cfg;
     private String pointName;
     private String prefix;
@@ -52,6 +53,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
+        enableFixed = cfg.getBoolean("enable_fixed_reward", false);
         enablePapi = cfg.getBoolean("enable_papi", false);
         pointName = cfg.getString("name", "点券");
         prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
@@ -105,6 +107,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         cfg = this.getConfig();
         enablePlugin = cfg.getBoolean("enable", false);
         enableMySQL = cfg.getBoolean("mysql.enable", false);
+        enableFixed = cfg.getBoolean("enable_fixed_reward", false);
         enablePapi = cfg.getBoolean("enable_papi", false);
         pointName = cfg.getString("name", "点券");
         prefix = ChatColor.translateAlternateColorCodes('&', cfg.getString("prefix", "&8[&6TotalPoints&8]"));
@@ -153,7 +156,9 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         if(change > 0) {
             //获得Points
-            checkFixedPoints(change, player);
+            if (enableFixed) {
+                checkFixedPoints(change, player);
+            }
             if (enableMySQL) {
                 MySQLManager sqlManager = new MySQLManager(this);
                 int newTotalPoints = sqlManager.getPlayerTotal(uuid.toString()) + change;
@@ -217,7 +222,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         for (int groupId : executionGroupId) {
             String prompt = cfg.getString("groups." + groupId + ".prompt", "");
-            List<String> commands = getConfig().getStringList("groups." + groupId + ".commands");
+            List<String> commands = cfg.getStringList("groups." + groupId + ".commands");
             for (String command : commands) {
                 if (papiOnLoad) {
                     command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
@@ -257,7 +262,7 @@ public class TotalPoints extends JavaPlugin implements Listener {
         }
         String groupName = String.valueOf(changePoint);
         String prompt = cfg.getString("fixed_reward." + groupName + ".prompt", "");
-        List<String> commands = getConfig().getStringList("fixed_reward." + groupName + ".commands");
+        List<String> commands = cfg.getStringList("fixed_reward." + groupName + ".commands");
         for (String command : commands) {
             if (papiOnLoad) {
                 command = PlaceholderAPI.setPlaceholders(player, command);

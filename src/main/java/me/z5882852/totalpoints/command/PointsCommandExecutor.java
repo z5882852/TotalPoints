@@ -1,15 +1,20 @@
 package me.z5882852.totalpoints.command;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.z5882852.totalpoints.database.MySQLManager;
 import me.z5882852.totalpoints.yaml.YamlStorageManager;
 import me.z5882852.totalpoints.TotalPoints;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.*;
 
 
 public class PointsCommandExecutor implements CommandExecutor {
@@ -84,14 +89,14 @@ public class PointsCommandExecutor implements CommandExecutor {
                 }
                 return true;
             case "remove":
-                if (sender.hasPermission("totalpoints.default.remove")) {
+                if (sender.hasPermission("totalpoints.admin.remove")) {
                     sender.sendMessage(prefix + removePlayerTotalPoints(args[1], Integer.parseInt(args[2])));
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
                 }
                 return true;
             case "set":
-                if (sender.hasPermission("totalpoints.default.set")) {
+                if (sender.hasPermission("totalpoints.admin.set")) {
                     sender.sendMessage(prefix + setPlayerTotalPoints(args[1], Integer.parseInt(args[2])));
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
@@ -110,8 +115,30 @@ public class PointsCommandExecutor implements CommandExecutor {
                 }
                 return true;
             case "setgroup":
-                if (sender.hasPermission("totalpoints.default.setgroup")) {
+                if (sender.hasPermission("totalpoints.admin.setgroup")) {
                     sender.sendMessage(prefix + setPlayerReward(args[1], Integer.parseInt(args[2])));
+                } else {
+                    sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
+                }
+                return true;
+            case "get":
+                if (sender.hasPermission("totalpoints.default.get")) {
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(prefix + ChatColor.RED + "你不是玩家。");
+                    }
+                    if (!checkInteger(args[1])) {
+                        sender.sendMessage(prefix + ChatColor.RED + "请输入正确的组名！");
+                    }
+                    Player player = (Player) sender;
+                    String player_name = player.getName();
+                    sender.sendMessage(prefix + getReward(player_name,Integer.parseInt(args[1])));
+                } else {
+                    sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
+                }
+                return true;
+            case "give":
+                if (sender.hasPermission("totalpoints.admin.give")) {
+                    sender.sendMessage(prefix + givePlayerReward(args[1], Integer.parseInt(args[2]), false));
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
                 }
@@ -283,6 +310,99 @@ public class PointsCommandExecutor implements CommandExecutor {
             yamlStorageManager.close();
         }
         return ChatColor.GREEN + "设置成功！";
+    }
+
+    public String getReward(String playerName, int groupId) {
+        int playerTotalPoints = getPlayerTotalPoints(playerName);
+        int RewardId = getPlayerReward(playerName);
+        if (RewardId == -1) {
+            return ChatColor.RED + "没有玩家的数据！";
+        }
+        if (playerTotalPoints == -1) {
+            return ChatColor.RED + "没有玩家的数据！";
+        }
+        if (!checkGroup(groupId)) {
+            return ChatColor.RED + "请输入正确的组名！";
+        }
+        if (groupId <= RewardId) {
+            return ChatColor.RED + "你已经领取过该奖励组！";
+        }
+        int groupConditionPoints = config.getInt("groups." + groupId + ".total", -1);
+        if (groupConditionPoints == -1) {
+            return ChatColor.RED + "奖励组错误: 该奖励组没有设置数额！";
+        }
+        if (playerTotalPoints < groupConditionPoints) {
+            return ChatColor.RED + "你没有达到该奖励组的领取条件！";
+        }
+        return givePlayerReward(playerName, groupId, true);
+    }
+
+    public String givePlayerReward(String playerName, int groupId, boolean isSetReward) {
+        String uuid;
+        if (!checkGroup(groupId)) {
+            return ChatColor.RED + "请输入正确的组名！";
+        }
+        if (enableMySQL) {
+            MySQLManager mySQLManager = new MySQLManager(plugin);
+            uuid = mySQLManager.getPlayerUUID(playerName);
+            if (uuid == null) {
+                mySQLManager.closeConn();
+                return ChatColor.RED + "没有该玩家的数据！";
+            }
+            mySQLManager.closeConn();
+        } else {
+            YamlStorageManager yamlStorageManager = new YamlStorageManager(plugin);
+            uuid = yamlStorageManager.getPlayerUUID(playerName);
+            if (uuid == null) {
+                yamlStorageManager.close();
+                return ChatColor.RED + "没有该玩家的数据！";
+            }
+            yamlStorageManager.close();
+        }
+        UUID playerUUID = UUID.fromString(uuid);
+        Player player = Bukkit.getPlayer(playerUUID);
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+        String prompt = config.getString("groups." + groupId + ".prompt", "");
+        List<String> commands = config.getStringList("groups." + groupId + ".commands");
+        for (String command : commands) {
+            if (TotalPoints.thisPlugin.papiOnLoad) {
+                command = PlaceholderAPI.setPlaceholders(offlinePlayer, command);
+            }
+            command = command.replace("{player_name}", offlinePlayer.getName());
+            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+        }
+        if (player != null && prompt != "") {
+            prompt = ChatColor.translateAlternateColorCodes('&', prompt);
+            player.sendMessage(prefix + prompt);
+        }
+        if (isSetReward) {
+            if (enableMySQL) {
+                MySQLManager sqlManager = new MySQLManager(plugin);
+                sqlManager.setPlayerReward(uuid, groupId);
+                sqlManager.closeConn();
+            } else {
+                YamlStorageManager storageManager = new YamlStorageManager(plugin);
+                storageManager.setPlayerReward(uuid, groupId);
+                storageManager.close();
+            }
+        }
+        return ChatColor.GREEN + "给予玩家 " + playerName + " 奖励成功！";
+    }
+
+    public boolean checkGroup(int groupId) {
+        Set<String> groups = config.getConfigurationSection("groups").getKeys(false);
+        List<Integer> groupIds = new ArrayList<>();
+        for (String group : groups) {
+            int id = Integer.parseInt(group);
+            groupIds.add(id);
+        }
+        if (groupIds.size() == 0) {
+            return false;
+        }
+        if (groupIds.contains(groupId)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean checkInteger(String number) {

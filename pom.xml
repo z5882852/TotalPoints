@@ -6,7 +6,7 @@
 
     <groupId>me.z5882852</groupId>
     <artifactId>TotalPoints</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
     <packaging>jar</packaging>
 
     <name>TotalPoints</name>

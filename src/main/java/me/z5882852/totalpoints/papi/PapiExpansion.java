@@ -64,6 +64,22 @@ public class PapiExpansion extends PlaceholderExpansion {
             papiManager.close();
             return rankings;
         }
+        if(params.equalsIgnoreCase("my_ranking")) {
+            PapiManager papiManager = new PapiManager(plugin, player);
+            String rankings = papiManager.getPlayerRanking(player.getName());
+            papiManager.close();
+            return rankings;
+        }
+        if(params.startsWith("ranking_")) {
+            String playerName = params.substring(8);
+            PapiManager papiManager = new PapiManager(plugin, player);
+            String ranking = papiManager.getPlayerRanking(playerName);
+            papiManager.close();
+            if (ranking == null) {
+                return config.getString("default_ranking_name");
+            }
+            return ranking;
+        }
         Set<String> groups = config.getConfigurationSection("groups").getKeys(false);
         for (String group : groups) {
             int groupId = Integer.parseInt(group);

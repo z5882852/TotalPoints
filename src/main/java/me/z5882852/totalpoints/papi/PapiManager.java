@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PapiManager {
     private JavaPlugin plugin;
@@ -74,6 +75,31 @@ public class PapiManager {
             return yamlStorageManager.getRanking();
         }
     }
+
+    public String getPlayerRanking(String playerName) {
+        List<Map<String, String>> ranking;
+        if (enableMySQL) {
+            ranking = mySQLManager.getPlayerRanking();
+        } else {
+            ranking = yamlStorageManager.getPlayerRanking();
+        }
+        int r = 1;
+        for (Map<String, String> map : ranking) {
+            String total = map.getOrDefault(playerName, null);
+            if (total != null) {
+                return this.plugin.getConfig()
+                        .getString("rankings_format", "玩家 {player_name} 累计充值 {player_total} 点券")
+                        .replace("{ranking}", String.valueOf(r))
+                        .replace("{player_name}", playerName)
+                        .replace("{player_total}", total);
+            }
+            r++;
+        }
+
+        return null;
+    }
+
+
 
     public String getRanking(int rankingNum) {
         List<String> rankings = getRankings();
