@@ -163,11 +163,15 @@ public class PointsCommandExecutor implements CommandExecutor {
     }
 
     public String getHelpMessage(){
-        String helpMessage =  "\n&6/tpw: 查看自己的累计点数。\n" +
+        String helpMessage = "&6/tpw: 查看自己的累计点数。\n" +
                 "&6/tpw look <玩家名>: 查看指定玩家的累计点数。\n" +
                 "&6/tpw add <玩家名> <点数>: 增加指定玩家的累计点数。\n" +
-                "&6/tpw remove <玩家名> <点数>: 减少指定玩家的点数。\n" +
-                "&6/tpw set <玩家名> <点数>: 设定指定玩家的点数。\n" +
+                "&6/tpw remove <玩家名> <点数>: 减少指定玩家的累计点数。\n" +
+                "&6/tpw set <玩家名> <点数>: 设定指定玩家的累计点数。\n" +
+                "&6/tpw get <组名>: 领取指定的奖励组。\n" +
+                "&6/tpw give <玩家名> <组名>: 给予指定玩家指定的奖励组。\n" +
+                "&6/tpw lookgroup <玩家名>: 查看指定玩家已领取的奖励组。\n" +
+                "&6/tpw setgroup <玩家名> <组名>: 设定指定玩家已领取的奖励组。\n" +
                 "&6/tpw reload: 重载配置文件。";
         return ChatColor.translateAlternateColorCodes('&', helpMessage);
     }

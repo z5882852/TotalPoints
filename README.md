@@ -151,7 +151,6 @@ default_ranking_name: "null"
 * `/tpw set <玩家名> <点数>`: 设定指定玩家的累计点数。
 * `/tpw get <组名>`: 领取指定的奖励组。
 * `/tpw give <玩家名> <组名>`: 给予指定玩家指定的奖励组。
-* `/tpw set <玩家名> <点数>`: 设定指定玩家的累计点数。
 * `/tpw lookgroup <玩家名>`: 查看指定玩家已领取的奖励组。
 * `/tpw setgroup <玩家名> <组名>`: 设定指定玩家已领取的奖励组。
 * `/tpw reload`: 重载配置文件。
