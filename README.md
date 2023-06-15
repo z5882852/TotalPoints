@@ -19,7 +19,7 @@ TotalPoints插件有以下配置选项：
 
 ```yaml
 # 配置文件版本号，请勿修改
-version: 1.26
+version: 1.27
 
 # Points别名,为了方便以下均称为“点券”
 name: '点券'
@@ -27,9 +27,12 @@ name: '点券'
 # 是否启用插件
 enable: true
 
-# 是否启用奖励组
+# 是否启用累计奖励组
 # 本插件主要功能就是这个，当然你想用其他功能（比如papi或者记录）那就随你(
 enable_reward: true
+
+# 是否启用固定奖励组
+enable_fixed_reward: true
 
 # 是否启用 PlaceholderAPI 变量
 enable_papi: true
@@ -45,7 +48,7 @@ enable_offline_execution: false
 
 # 累计点券奖励组
 groups:
-   # 奖励组名称,请按顺序使用正整数来命名，例如 1-10等
+   # 奖励组名称,请按顺序使用正整数来命名，例如 1-10等, 触发条件应该和奖励组成正比
    1:
       # 该奖励组名称
       name: "累充100礼包"
@@ -66,8 +69,8 @@ groups:
       prompt: "XXX"
 
 
-# 充值固定数额的奖励
-#格式为
+# 固定数额的奖励
+# 当玩家获得固定数额的点券时会触发，格式为:
 # <数额>:
 #   commands:
 #     - <命令1>
@@ -124,10 +127,15 @@ status_not_receive: "未领取"
 
 # %points_rankings% papi输出的最大排行数
 rankings_number: 10
-# papi输出的排名格式,{ranking}排名 {player_name}为玩家名, {player_total}为累计获得点券数量
+# papi输出的排名格式, 可用变量: {ranking}排名 {player_name}为玩家名, {player_total}为累计获得点券数量
 rankings_format: "{ranking}.玩家 {player_name} 累计充值 {player_total} 点券"
 # 默认排名显示(当累计点券为0时)
 default_ranking: "null"
+
+# 根据玩家名获取排名的格式
+ranking_format: "{ranking}.玩家 {player_name} 累计充值 {player_total} 点券"
+# 当玩家名不存在时返回的值
+default_ranking_name: "null"
 ```
 
 要更改配置选项，请编辑config.yml文件。
@@ -141,6 +149,9 @@ default_ranking: "null"
 * `/tpw add <玩家名> <点数>`: 增加指定玩家的累计点数。
 * `/tpw remove <玩家名> <点数>`: 减少指定玩家的累计点数。
 * `/tpw set <玩家名> <点数>`: 设定指定玩家的累计点数。
+* `/tpw get <组名>`: 领取指定的奖励组。
+* `/tpw give <玩家名> <组名>`: 给予指定玩家指定的奖励组。
+* `/tpw set <玩家名> <点数>`: 设定指定玩家的累计点数。
 * `/tpw lookgroup <玩家名>`: 查看指定玩家已领取的奖励组。
 * `/tpw setgroup <玩家名> <组名>`: 设定指定玩家已领取的奖励组。
 * `/tpw reload`: 重载配置文件。
@@ -150,6 +161,8 @@ default_ranking: "null"
 * `%TotalPoints_points_total%`: 玩家的累积点数。
 * `%TotalPoints_points_rankings%`: 玩家的累积点数排行榜。
 * `%TotalPoints_points_ranking_{排名}%`: 指定排名的玩家信息。
+* `%TotalPoints_my_ranking%`: 你的排名信息。
+* `%TotalPoints_ranking_{玩家名}%`: 指定玩家的排名信息。
 * `%TotalPoints_group_{组名}_status%`: 玩家的奖励组领取状态。
 * `%TotalPoints_group_{组名}_name%`: 该奖励组的名称。
 * `%TotalPoints_group_{组名}_total%`: 该奖励组的的领取条。
