@@ -71,17 +71,33 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "look":
                 if (sender.hasPermission("totalpoints.default.look")) {
-                    int totalPoints = getPlayerTotalPoints(args[1]);
+                    String playerName;
+                    if (args.length == 1){
+                        if (!(sender instanceof Player)) {
+                            sender.sendMessage(prefix + ChatColor.RED + "你不是玩家。");
+                            return true;
+                        }
+                        Player player = (Player) sender;
+                        playerName = player.getName();
+                    } else {
+                        playerName = args[1];
+                    }
+                    int totalPoints = getPlayerTotalPoints(playerName);
                     if (totalPoints == -1) {
                         sender.sendMessage(ChatColor.RED + "没有该玩家的数据！");
                     } else {
-                        sender.sendMessage(prefix + ChatColor.GOLD + "该玩家的累计" + pointName + "为" + ChatColor.GREEN + totalPoints);
+                        sender.sendMessage(prefix + ChatColor.GOLD + "玩家" + playerName + "的累计" + pointName + "为" + ChatColor.GREEN + totalPoints);
                     }
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
                 }
                 return true;
             case "add":
+                if (args.length != 3) {
+                    sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                    sender.sendMessage(prefix + getHelpMessage());
+                    return true;
+                }
                 if (sender.hasPermission("totalpoints.default.add")) {
                     sender.sendMessage(prefix + addPlayerTotalPoints(args[1], Integer.parseInt(args[2])));
                 } else {
@@ -89,6 +105,11 @@ public class PointsCommandExecutor implements CommandExecutor {
                 }
                 return true;
             case "remove":
+                if (args.length != 3) {
+                    sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                    sender.sendMessage(prefix + getHelpMessage());
+                    return true;
+                }
                 if (sender.hasPermission("totalpoints.admin.remove")) {
                     sender.sendMessage(prefix + removePlayerTotalPoints(args[1], Integer.parseInt(args[2])));
                 } else {
@@ -96,6 +117,11 @@ public class PointsCommandExecutor implements CommandExecutor {
                 }
                 return true;
             case "set":
+                if (args.length != 3) {
+                    sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                    sender.sendMessage(prefix + getHelpMessage());
+                    return true;
+                }
                 if (sender.hasPermission("totalpoints.admin.set")) {
                     sender.sendMessage(prefix + setPlayerTotalPoints(args[1], Integer.parseInt(args[2])));
                 } else {
@@ -104,6 +130,11 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "lookgroup":
                 if (sender.hasPermission("totalpoints.default.lookgroup")) {
+                    if (args.length != 2) {
+                        sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                        sender.sendMessage(prefix + getHelpMessage());
+                        return true;
+                    }
                     int RewardId = getPlayerReward(args[1]);
                     if (RewardId == -1) {
                         sender.sendMessage(ChatColor.RED + "没有该玩家的数据！");
@@ -116,6 +147,11 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "setgroup":
                 if (sender.hasPermission("totalpoints.admin.setgroup")) {
+                    if (args.length != 3) {
+                        sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                        sender.sendMessage(prefix + getHelpMessage());
+                        return true;
+                    }
                     sender.sendMessage(prefix + setPlayerReward(args[1], Integer.parseInt(args[2])));
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
@@ -123,8 +159,14 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "get":
                 if (sender.hasPermission("totalpoints.default.get")) {
+                    if (args.length != 2) {
+                        sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                        sender.sendMessage(prefix + getHelpMessage());
+                        return true;
+                    }
                     if (!(sender instanceof Player)) {
                         sender.sendMessage(prefix + ChatColor.RED + "你不是玩家。");
+                        return true;
                     }
                     if (!checkInteger(args[1])) {
                         sender.sendMessage(prefix + ChatColor.RED + "请输入正确的组名！");
@@ -138,6 +180,11 @@ public class PointsCommandExecutor implements CommandExecutor {
                 return true;
             case "give":
                 if (sender.hasPermission("totalpoints.admin.give")) {
+                    if (args.length != 3) {
+                        sender.sendMessage(prefix + ChatColor.RED + "请输入正确的命令！");
+                        sender.sendMessage(prefix + getHelpMessage());
+                        return true;
+                    }
                     sender.sendMessage(prefix + givePlayerReward(args[1], Integer.parseInt(args[2]), false));
                 } else {
                     sender.sendMessage(ChatColor.RED + "你没有执行该命令的权限。");
@@ -250,11 +297,13 @@ public class PointsCommandExecutor implements CommandExecutor {
         if (enableMySQL) {
             MySQLManager mySQLManager = new MySQLManager(plugin);
             String playerUUID = mySQLManager.getPlayerUUID(playerName);
+            System.out.println(playerUUID);
             if (playerUUID == null) {
                 mySQLManager.closeConn();
                 return -1;
             }
             playerTotalPoints = mySQLManager.getPlayerTotal(playerUUID);
+            System.out.println(playerTotalPoints);
             mySQLManager.closeConn();
         } else {
             YamlStorageManager yamlStorageManager = new YamlStorageManager(plugin);
@@ -375,7 +424,7 @@ public class PointsCommandExecutor implements CommandExecutor {
             command = command.replace("{player_name}", offlinePlayer.getName());
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
         }
-        if (player != null && prompt != "") {
+        if (player != null && !Objects.equals(prompt, "")) {
             prompt = ChatColor.translateAlternateColorCodes('&', prompt);
             player.sendMessage(prefix + prompt);
         }
@@ -403,10 +452,7 @@ public class PointsCommandExecutor implements CommandExecutor {
         if (groupIds.size() == 0) {
             return false;
         }
-        if (groupIds.contains(groupId)) {
-            return true;
-        }
-        return false;
+        return groupIds.contains(groupId);
     }
 
     public boolean checkInteger(String number) {

@@ -107,7 +107,7 @@ public class MySQLManager {
         String playerUUID = null;
         try {
             Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(String.format("SELECT `uuid` FROM `%s` WHERE `name` = '%s'", table, playerUUID));
+            ResultSet rs = statement.executeQuery(String.format("SELECT `uuid` FROM `%s` WHERE `name` = '%s'", table, playerName));
             if (rs.next()) {
                 playerUUID = rs.getString("uuid");
             }
